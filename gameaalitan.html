@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Link & Mini Game - Profil Profesional</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .glass-card-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+        .glass-card-dark {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .custom-link {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        .custom-link:hover {
+            transform: translateY(-2px);
+        }
+        canvas {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex items-center justify-center p-4 sm:p-6 relative">
+
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-6 z-50">
+        <button id="theme-toggle" class="p-2.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:scale-105 transition-all text-slate-700 dark:text-amber-400 focus:outline-none" aria-label="Ganti Tema">
+            <i id="theme-icon" class="fas fa-moon text-lg"></i>
+        </button>
+    </div>
+
+    <main class="w-full max-w-md mx-auto z-10">
+        
+        <div id="main-card" class="glass-card-light dark:glass-card-dark rounded-3xl p-6 sm:p-8 mb-6 relative overflow-hidden transition-all duration-300">
+            <!-- Decorative Accent Dot -->
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="flex flex-col items-center text-center">
+                <!-- User Photo -->
+                
+
+                <!-- Name & Bio -->
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-1 flex items-center justify-center gap-1.5">
+                    Rizki Ap
+                    <i class="fas fa-check-circle text-indigo-500 text-sm" title="Verified Creator"></i>
+                </h1>
+                <p class="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 px-2">
+                    Mainkan game aalitan di bawah ini ngab!!!!
+                </p>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+                <div class="flex items-center justify-between mb-2 px-1">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5 font-mono">
+                        <i class="fas fa-gamepad"></i> Mini-Arcade: Tangkap Bug!
+                    </span>
+                    <div class="text-xs font-mono font-semibold text-slate-600 dark:text-slate-300">
+                        Skor: <span id="game-score" class="text-indigo-600 dark:text-indigo-400 font-bold">0</span> | Rekor: <span id="high-score" class="text-amber-500 font-bold">0</span>
+                    </div>
+                </div>
+
+                <!-- Game Canvas Container -->
+                <div class="relative bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-inner group">
+                    <canvas id="gameCanvas" width="360" height="180" class="w-full h-[180px] block cursor-crosshair"></canvas>
+                    
+                    <!-- Overlay Start Screen -->
+                    <div id="game-overlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 text-center z-10 transition-opacity">
+                        <div class="text-3xl mb-1">🐛⚡</div>
+                        <h3 class="text-sm font-bold text-white mb-1">Basmi Bug Kodingan!</h3>
+                        <p class="text-[11px] text-slate-400 mb-3 max-w-[240px]">Ketuk atau klik sebanyak mungkin bug merah dalam 20 detik sebelum waktu habis!</p>
+                        <button id="start-game-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/30 transition-all transform active:scale-95">
+                            Mulai Game Ngab
+                        </button>
+                    </div>
+
+                    <!-- Timer Badge during gameplay -->
+                    <div id="game-timer-badge" class="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md text-amber-400 font-mono text-[10px] px-2 py-0.5 rounded-md border border-slate-700 hidden">
+                        ⏱️ <span id="time-left">20</span>s
+                    </div>
+                </div>
+                <p id="game-tip" class="text-[10px] text-center text-slate-400 dark:text-slate-500 mt-2 font-mono">Ketuk bug merah sebelum dia kabur!</p>
+            </div>
+
+        </div>
+
+        
+
+        <footer class="text-center pb-4">
+            <p class="text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                © dibuat dengan rasa gabut
+            </p>
+        </footer>
+
+    </main>
+
+    <script>
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const htmlElement = document.documentElement;
+
+        // Check local storage or system preference
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            htmlElement.classList.remove('dark');
+            themeIcon.className = 'fas fa-sun text-lg text-amber-500';
+        } else {
+            htmlElement.classList.add('dark');
+            themeIcon.className = 'fas fa-moon text-lg text-amber-400';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.className = 'fas fa-sun text-lg text-amber-500';
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.className = 'fas fa-moon text-lg text-amber-400';
+            }
+        });
+
+        // Mini Arcade Game: "Catch the Bug"
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('game-score');
+        const highScoreEl = document.getElementById('high-score');
+        const timeLeftEl = document.getElementById('time-left');
+        const startBtn = document.getElementById('start-game-btn');
+        const overlay = document.getElementById('game-overlay');
+        const timerBadge = document.getElementById('game-timer-badge');
+        const gameTip = document.getElementById('game-tip');
+
+        let score = 0;
+        let highScore = localStorage.getItem('bugHighScore') || 0;
+        highScoreEl.textContent = highScore;
+
+        let timeLeft = 20;
+        let gameInterval = null;
+        let bugTimer = null;
+        let isPlaying = false;
+
+        let bug = {
+            x: 50,
+            y: 50,
+            radius: 18,
+            vx: 2.5,
+            vy: 2,
+            active: false
+        };
+
+        let particles = [];
+
+        function spawnBug() {
+            bug.x = Math.random() * (canvas.width - 60) + 30;
+            bug.y = Math.random() * (canvas.height - 60) + 30;
+            bug.vx = (Math.random() - 0.5) * 4;
+            bug.vy = (Math.random() - 0.5) * 4;
+            bug.active = true;
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 20;
+            scoreEl.textContent = score;
+            timeLeftEl.textContent = timeLeft;
+            isPlaying = true;
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            timerBadge.classList.remove('hidden');
+            gameTip.textContent = "Ketuk bug merah secepat mungkin! 🐛";
+
+            spawnBug();
+
+            // Countdown timer
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timeLeftEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            timerBadge.classList.add('hidden');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('bugHighScore', highScore);
+                highScoreEl.textContent = highScore;
+                gameTip.textContent = `Rekor Baru! Skor kamu: ${score}`;
+            } else {
+                gameTip.textContent = `Waktu habis! Skor akhir kamu: ${score}`;
+            }
+            overlay.querySelector('h3').textContent = "Main Lagi?";
+            startBtn.textContent = "Ulangi Game ";
+        }
+
+        // Handle canvas clicks / touches
+        function handleCanvasInteract(clientX, clientY) {
+            if (!isPlaying || !bug.active) return;
+
+            const rect = canvas.getBoundingClientRect();
+            // Scale touch/click relative to canvas internal resolution
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clickX = (clientX - rect.left) * scaleX;
+            const clickY = (clientY - rect.top) * scaleY;
+
+            const dist = Math.hypot(clickX - bug.x, clickY - bug.y);
+            if (dist < bug.radius + 12) {
+                // Bug caught!
+                score += 10;
+                scoreEl.textContent = score;
+                
+                // Add particle effects
+                for (let i = 0; i < 6; i++) {
+                    particles.push({
+                        x: bug.x,
+                        y: bug.y,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        alpha: 1
+                    });
+                }
+
+                spawnBug();
+            }
+        }
+
+        canvas.addEventListener('click', (e) => {
+            handleCanvasInteract(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (e.touches.length > 0) {
+                handleCanvasInteract(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+        startBtn.addEventListener('click', startGame);
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw subtle grid background
+            ctx.strokeStyle = 'rgba(51, 65, 85, 0.2)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 20) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+            }
+            for (let j = 0; j < canvas.height; j += 20) {
+                ctx.beginPath();
+                ctx.moveTo(0, j);
+                ctx.lineTo(canvas.width, j);
+                ctx.stroke();
+            }
+
+            if (isPlaying && bug.active) {
+                // Move bug
+                bug.x += bug.vx;
+                bug.y += bug.vy;
+
+                // Bounce off walls
+                if (bug.x < 20 || bug.x > canvas.width - 20) bug.vx *= -1;
+                if (bug.y < 20 || bug.y > canvas.height - 20) bug.vy *= -1;
+
+                // Draw Bug
+                ctx.save();
+                ctx.translate(bug.x, bug.y);
+                
+                // Body
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(0, 0, 12, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Eyes & details
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(-5, -6, 3, 3);
+                ctx.fillRect(2, -6, 3, 3);
+
+                ctx.restore();
+            }
+
+            // Draw particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.03;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                } else {
+                    ctx.fillStyle = `rgba(244, 63, 94, ${p.alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            if (isPlaying) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+    </script>
+</body>
+</html>
